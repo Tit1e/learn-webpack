@@ -3,6 +3,9 @@ const webpack = require('webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
+// 关于路径的文章 https://juejin.im/post/5ae9ae5e518825672f19b094
 
 module.exports = {
   // 打包模式： development：开发环境，production：生产环境
@@ -12,9 +15,16 @@ module.exports = {
   // 出口
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[hash].bundle.js'
+    filename: '[name].[hash].bundle.js',
+    publicPath: './',
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src/'),
+    }
   },
   devServer: {
+    publicPath: '/',
     // 该目录与输出目录对应
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
@@ -79,7 +89,18 @@ module.exports = {
       // 生成的文件名字
       filename: 'index.html',
       // 模版文件所在路径
-      template: './src/public/index.html'
-    })
+      template: 'src/public/index.html',
+      inject: true
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, 'src/assets'),
+        to: 'static',
+        ignore: ['.*']
+      }
+    ])
   ],
+  node: {
+    fs: "empty"
+ }
 }
